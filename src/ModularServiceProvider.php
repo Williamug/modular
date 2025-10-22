@@ -2,24 +2,37 @@
 
 namespace Williamug\Modular;
 
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Williamug\Modular\Commands\ModularCommand;
+use Illuminate\Support\ServiceProvider;
+use Williamug\Modular\Commands\ListModulesCommand;
+use Williamug\Modular\Commands\MakeModuleCommand;
+use Williamug\Modular\Commands\ModuleScanCommand;
 
-class ModularServiceProvider extends PackageServiceProvider
+class ModularServiceProvider extends ServiceProvider
 {
-    public function configurePackage(Package $package): void
-    {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
-        $package
-            ->name('modular')
-            ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_modular_table')
-            ->hasCommand(ModularCommand::class);
+  public function register()
+  {
+    $this->mergeConfigFrom(__DIR__ . '/config/modular.php', 'modular');
+
+    $this->app->singleton(ModuleManager::class, function ($app) {
+      return new ModuleManager(config('modular.modules_path', base_path('modules')));
+    });
+
+    $this->app->singleton(HookManager::class, function ($app) {
+      return new HookManager();
+    });
+
+    // register commands
+    $this->commands([
+      MakeModuleCommand::class,
+      ListModulesCommand::class,
+      ModuleScanCommand::class,
+    ]);
+  }
+
+  public function boot(ModuleManager $manager)
+  {
+    if (config('modules.auto_scan', true)) {
+      $manager->scanAndRegister();
     }
+  }
 }
