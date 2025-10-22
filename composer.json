@@ -30,8 +30,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Williamug\\Modular\\": "src/",
-            "Williamug\\Modular\\Database\\Factories\\": "database/factories/"
+            "Williamug\\Modular\\": "src/"
         }
     },
     "autoload-dev": {
