@@ -13,6 +13,7 @@ class ExampleServiceProvider extends ServiceProvider
         if (class_exists(HookManager::class)) {
             app(HookManager::class)->add('example.hook', function ($payload) {
                 \Log::info('Example module hook triggered', (array) $payload);
+
                 return ['example' => 'handled'];
             });
         }

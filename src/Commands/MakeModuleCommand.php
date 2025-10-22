@@ -8,66 +8,68 @@ use Illuminate\Support\Str;
 
 class MakeModuleCommand extends Command
 {
-  protected $signature = 'module:make {name}';
-  protected $description = 'Scaffold a new module inside the modules/ directory';
+    protected $signature = 'module:make {name}';
 
-  public function handle(Filesystem $files)
-  {
-    $name = Str::studly($this->argument('name'));
-    $slug = Str::kebab($name);
-    $base = base_path("Modules/{$slug}");
+    protected $description = 'Scaffold a new module inside the modules/ directory';
 
-    if ($files->isDirectory($base)) {
-      $this->error("Module already exists: {$slug}");
-      return Command::FAILURE;
-    }
+    public function handle(Filesystem $files)
+    {
+        $name = Str::studly($this->argument('name'));
+        $slug = Str::kebab($name);
+        $base = base_path("Modules/{$slug}");
 
-    // ✅ Create all required directories
-    $dirs = [
-      $base,
-      "{$base}/Providers",
-      "{$base}/Http/Controllers",
-      "{$base}/Models",
-      "{$base}/Database/migrations",
-      "{$base}/routes",
-      "{$base}/resources/views",
-      "{$base}/resources/js/Pages",
-    ];
+        if ($files->isDirectory($base)) {
+            $this->error("Module already exists: {$slug}");
 
-    foreach ($dirs as $dir) {
-      $files->ensureDirectoryExists($dir);
-    }
+            return Command::FAILURE;
+        }
 
-    // ✅ module.json
-    $manifest = [
-      'name' => $name,
-      'slug' => $slug,
-      'version' => '1.0.0',
-      'description' => "{$name} module",
-      'enabled' => true,
-      'provider' => "Williamug\\Modules\\{$name}\\Providers\\{$name}ServiceProvider",
-    ];
+        // ✅ Create all required directories
+        $dirs = [
+            $base,
+            "{$base}/Providers",
+            "{$base}/Http/Controllers",
+            "{$base}/Models",
+            "{$base}/Database/migrations",
+            "{$base}/routes",
+            "{$base}/resources/views",
+            "{$base}/resources/js/Pages",
+        ];
 
-    $files->put(
-      "{$base}/module.json",
-      json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
-    );
+        foreach ($dirs as $dir) {
+            $files->ensureDirectoryExists($dir);
+        }
 
-    // ✅ hooks.php (empty template)
-    $hooks = <<<PHP
+        // ✅ module.json
+        $manifest = [
+            'name' => $name,
+            'slug' => $slug,
+            'version' => '1.0.0',
+            'description' => "{$name} module",
+            'enabled' => true,
+            'provider' => "Williamug\\Modules\\{$name}\\Providers\\{$name}ServiceProvider",
+        ];
+
+        $files->put(
+            "{$base}/module.json",
+            json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+
+        // ✅ hooks.php (empty template)
+        $hooks = <<<'PHP'
 <?php
 
-use Williamug\\Modular\\HookManager;
+use Williamug\Modular\HookManager;
 
-return function (HookManager \$hooks) {
+return function (HookManager $hooks) {
     // Example:
-    // \$hooks->listen('user.created', fn(\$user) => Log::info("New user: " . \$user->name));
+    // $hooks->listen('user.created', fn($user) => Log::info("New user: " . $user->name));
 };
 PHP;
-    $files->put("{$base}/hooks.php", $hooks);
+        $files->put("{$base}/hooks.php", $hooks);
 
-    // ✅ Service Provider (auto-loads hooks, routes, migrations, and views)
-    $provider = <<<PHP
+        // ✅ Service Provider (auto-loads hooks, routes, migrations, and views)
+        $provider = <<<PHP
 <?php
 
 namespace App\\Modules\\{$name}\\Providers;
@@ -109,10 +111,10 @@ class {$name}ServiceProvider extends ServiceProvider
     }
 }
 PHP;
-    $files->put("{$base}/Providers/{$name}ServiceProvider.php", $provider);
+        $files->put("{$base}/Providers/{$name}ServiceProvider.php", $provider);
 
-    // ✅ Sample route
-    $route = <<<PHP
+        // ✅ Sample route
+        $route = <<<PHP
 <?php
 
 use Illuminate\\Support\\Facades\\Route;
@@ -121,9 +123,10 @@ Route::get('/{$slug}', function () {
     return response("{$name} module loaded successfully.");
 });
 PHP;
-    $files->put("{$base}/routes/web.php", $route);
+        $files->put("{$base}/routes/web.php", $route);
 
-    $this->info("✅ Module scaffolded: {$slug}");
-    return Command::SUCCESS;
-  }
+        $this->info("✅ Module scaffolded: {$slug}");
+
+        return Command::SUCCESS;
+    }
 }
