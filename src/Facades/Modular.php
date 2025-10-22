@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Facade;
  */
 class Modular extends Facade
 {
-    protected static function getFacadeAccessor(): string
-    {
-        return \Williamug\Modular\Modular::class;
-    }
+  protected static function getFacadeAccessor(): string
+  {
+    return \Williamug\Modular\ModuleManager::class;
+  }
 }
