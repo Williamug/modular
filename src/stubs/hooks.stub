@@ -1,0 +1,8 @@
+<?php
+
+use Williamug\Modular\HookManager;
+
+return function (HookManager $hooks) {
+    // Example:
+    // $hooks->listen('user.created', fn($user) => Log::info("New user: " . $user->name));
+};

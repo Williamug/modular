@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Modules\{{module}}\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Williamug\Modular\HookManager;
+
+class {{module}}ServiceProvider extends ServiceProvider
+{
+    protected string $module = '{{slug}}';
+
+    public function boot()
+    {
+        $base = base_path('modules/' . $this->module);
+
+        // Load routes
+        if (file_exists($base . '/routes/web.php')) {
+            $this->loadRoutesFrom($base . '/routes/web.php');
+        }
+
+        // Load migrations
+        if (is_dir($base . '/Database/migrations')) {
+            $this->loadMigrationsFrom($base . '/Database/migrations');
+        }
+
+        // Load views
+        if (is_dir($base . '/resources/views')) {
+            $this->loadViewsFrom($base . '/resources/views', $this->module);
+        }
+
+        // Load hooks
+        $hookFile = $base . '/hooks.php';
+        if (file_exists($hookFile)) {
+            $callback = require $hookFile;
+            if (is_callable($callback)) {
+                $callback(app(HookManager::class));
+            }
+        }
+    }
+}
