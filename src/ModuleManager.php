@@ -3,7 +3,6 @@
 namespace Williamug\Modular;
 
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 
 class ModuleManager
 {
@@ -12,7 +11,7 @@ class ModuleManager
 
   public function __construct(?string $modulesPath = null)
   {
-    $this->modulesPath = $modulesPath ?: base_path('modules');
+    $this->modulesPath = $modulesPath ?: base_path('Modules');
   }
 
   /**
@@ -35,7 +34,12 @@ class ModuleManager
       }
 
       $content = json_decode(File::get($manifest), true);
+
       if (!$content || empty($content['name'])) {
+        continue;
+      }
+
+      if (!isset($content['name'], $content['slug'])) {
         continue;
       }
 
@@ -118,7 +122,7 @@ class ModuleManager
         $hooks($hookManager);
       }
     } catch (\Throwable $e) {
-      Log::error("Failed to register hooks for module at {$dir}: " . $e->getMessage());
+      // Handle exception if needed
     }
   }
 }
