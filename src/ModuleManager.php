@@ -21,12 +21,9 @@ class ModuleManager
   {
     $found = [];
 
-    if (!is_dir($this->modulesPath)) {
-      return $found;
-    }
+    $directories = File::directories($this->modulesPath);
 
-    foreach (glob($this->modulesPath . '/*', GLOB_ONLYDIR) as $dir) {
-      $slug = basename($dir);
+    foreach ($directories as $dir) {
       $manifest = $dir . '/module.json';
 
       if (!File::exists($manifest)) {
@@ -35,14 +32,11 @@ class ModuleManager
 
       $content = json_decode(File::get($manifest), true);
 
-      if (!$content || empty($content['name'])) {
+      if (!$content || empty($content['name']) || !isset($content['slug'])) {
         continue;
       }
 
-      if (!isset($content['name'], $content['slug'])) {
-        continue;
-      }
-
+      $slug = $content['slug'];
       $content['__path'] = $dir;
       $this->modules[$slug] = $content;
       $found[$slug] = $content;
