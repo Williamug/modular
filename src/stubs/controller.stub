@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Modules\{{module}}\Http\Controllers;
+
+use Illuminate\Routing\Controller;
+
+class {{module}}Controller extends Controller
+{
+    public function index()
+    {
+        return response()->json(['message' => '{{module}} module loaded successfully.']);
+    }
+}

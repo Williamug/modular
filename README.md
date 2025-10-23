@@ -1,84 +1,174 @@
-# This is my package modular
-
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/williamug/modular.svg?style=flat-square)](https://packagist.org/packages/williamug/modular)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/williamug/modular/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/williamug/modular/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/williamug/modular/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/williamug/modular/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/williamug/modular.svg?style=flat-square)](https://packagist.org/packages/williamug/modular)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+# Modular
 
-## Support us
+The Modular provides a modular architecture for Laravel applications, allowing you to organize your application into self-contained modules. This package is inspired by the concept of modular development, making it easier to manage large applications.
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/Modular.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/Modular)
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+## Features
+- Create, enable, disable, and delete modules.
+- Run migrations, seeders, and publish assets for specific modules.
+- Generate controllers, models, and migrations within modules.
+- Dynamic module loading and management.
+- Supports both API-only and full-stack Laravel projects.
 
 ## Installation
 
-You can install the package via composer:
-
+Install the package via Composer:
 ```bash
 composer require williamug/modular
 ```
 
-You can publish and run the migrations with:
-
+Run the installation command to set up the package:
 ```bash
-php artisan vendor:publish --tag="modular-migrations"
-php artisan migrate
+php artisan modular:install
 ```
+This will publish the configuration file and configure your frontend.
 
-You can publish the config file with:
+## Available Commands
 
+### Creating a Module
+To create a new module, use the `module:create` command:
 ```bash
-php artisan vendor:publish --tag="modular-config"
+php artisan module:create Blog
+```
+This will create a `Blog` module in the `Modules` directory with the following structure:
+```
+Modules/
+  Blog/
+    Providers/
+    Http/
+    Models/
+    Database/
+    routes/
+    resources/
+    hook.php
+    module.json
 ```
 
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
-Optionally, you can publish the views using
-
+### Enabling and Disabling Modules
+Enable a module:
 ```bash
-php artisan vendor:publish --tag="modular-views"
+php artisan module:enable Blog
 ```
-
-## Usage
-
-```php
-$modular = new Williamug\Modular();
-echo $modular->echoPhrase('Hello, Williamug!');
-```
-
-## Testing
-
+Disable a module:
 ```bash
-composer test
+php artisan module:disable Blog
 ```
 
-## Changelog
+### Deleting a Module
+Delete a module:
+```bash
+php artisan module:delete Blog
+```
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+### Running Migrations
+Run migrations for a specific module:
+```bash
+php artisan module:migrate Blog
+```
+
+### Seeding Data
+Seed data for a specific module:
+```bash
+php artisan module:seed Blog
+```
+
+### Publishing Assets
+Publish assets for a specific module:
+```bash
+php artisan module:publish Blog
+```
+
+### Generating Files
+Generate a controller within a module:
+```bash
+php artisan module:controller Blog PostController
+```
+Generate a model within a module:
+```bash
+php artisan module:model Blog Post --migration
+```
+Generate a migration within a module:
+```bash
+php artisan module:migration Blog create_posts_table
+```
+
+### Viewing Module Information
+View detailed information about a module:
+```bash
+php artisan module:info Blog
+```
+
+## Example Project
+
+### Setting Up a Blog Module
+1. **Create the Module**:
+   ```bash
+   php artisan module:make Blog
+   ```
+
+2. **Add Routes**:
+   Edit `Modules/Blog/routes/web.php`:
+   ```php
+   <?php
+
+   use Illuminate\Support\Facades\Route;
+
+   Route::get('/blog', function () {
+       return 'Welcome to the Blog module!';
+   });
+   ```
+
+3. **Create a Controller**:
+   ```bash
+   php artisan module:controller Blog BlogController
+   ```
+   Edit `Modules/Blog/Http/Controllers/BlogController.php`:
+   ```php
+   <?php
+
+   namespace Modules\Blog\Http\Controllers;
+
+   use Illuminate\Http\Request;
+   use App\Http\Controllers\Controller;
+
+   class BlogController extends Controller
+   {
+       public function index()
+       {
+           return 'Blog index page';
+       }
+   }
+   ```
+
+4. **Add a Model**:
+   ```bash
+   php artisan module:model Blog Post --migration
+   ```
+   Edit the generated migration file to define the `posts` table schema.
+
+5. **Run Migrations**:
+   ```bash
+   php artisan module:migrate Blog
+   ```
+
+6. **Enable the Module**:
+   ```bash
+   php artisan module:enable Blog
+   ```
+
+7. **Access the Module**:
+   Visit `/blog` in your browser to see the Blog module in action.
+
+## API-Only Projects
+For API-only projects, the package automatically skips frontend scaffolding. You can still use all the commands to manage modules and their backend logic.
 
 ## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [William Asaba](https://github.com/Williamug)
-- [All Contributors](../../contributors)
+Contributions are welcome! Please submit a pull request or open an issue to discuss changes.
 
 ## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+This package is open-source software licensed under the [MIT license](LICENSE.md).

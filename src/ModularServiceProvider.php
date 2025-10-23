@@ -2,24 +2,59 @@
 
 namespace Williamug\Modular;
 
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Williamug\Modular\Commands\ModularCommand;
+use Illuminate\Support\ServiceProvider;
+use Williamug\Modular\Commands\DeleteModuleCommand;
+use Williamug\Modular\Commands\DisableModuleCommand;
+use Williamug\Modular\Commands\EnableModuleCommand;
+use Williamug\Modular\Commands\InfoModuleCommand;
+use Williamug\Modular\Commands\ListModulesCommand;
+use Williamug\Modular\Commands\MakeControllerCommand;
+use Williamug\Modular\Commands\MakeMigrationCommand;
+use Williamug\Modular\Commands\MakeModelCommand;
+use Williamug\Modular\Commands\MakeModuleCommand;
+use Williamug\Modular\Commands\MigrateModuleCommand;
+use Williamug\Modular\Commands\ModularInstallCommand;
+use Williamug\Modular\Commands\ModuleScanCommand;
+use Williamug\Modular\Commands\PublishModuleCommand;
+use Williamug\Modular\Commands\SeedModuleCommand;
 
-class ModularServiceProvider extends PackageServiceProvider
+class ModularServiceProvider extends ServiceProvider
 {
-    public function configurePackage(Package $package): void
+    public function register()
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
-        $package
-            ->name('modular')
-            ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_modular_table')
-            ->hasCommand(ModularCommand::class);
+        $this->mergeConfigFrom(__DIR__.'/config/modular.php', 'modular');
+
+        $this->app->singleton(ModuleManager::class, function () {
+            return new ModuleManager(base_path('Modules'));
+        });
+
+        $this->app->singleton(HookManager::class, function () {
+            return new HookManager;
+        });
+
+        // register commands
+        $this->commands([
+            MakeModuleCommand::class,
+            ListModulesCommand::class,
+            ModuleScanCommand::class,
+            ModularInstallCommand::class,
+            EnableModuleCommand::class,
+            DisableModuleCommand::class,
+            DeleteModuleCommand::class,
+            MigrateModuleCommand::class,
+            SeedModuleCommand::class,
+            PublishModuleCommand::class,
+            InfoModuleCommand::class,
+            MakeControllerCommand::class,
+            MakeModelCommand::class,
+            MakeMigrationCommand::class,
+        ]);
+    }
+
+    public function boot(ModuleManager $manager)
+    {
+        if (config('modules.auto_scan', true)) {
+            $manager->scanAndRegister();
+        }
     }
 }

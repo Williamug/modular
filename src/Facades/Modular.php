@@ -11,6 +11,6 @@ class Modular extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Williamug\Modular\Modular::class;
+        return \Williamug\Modular\ModuleManager::class;
     }
 }

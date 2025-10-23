@@ -12,6 +12,9 @@ class TestCase extends Orchestra
     {
         parent::setUp();
 
+        // Explicitly load the configuration file from the new location
+        $this->app['config']->set('modular', require __DIR__.'/../src/config/modular.php');
+
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'Williamug\\Modular\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
@@ -29,9 +32,9 @@ class TestCase extends Orchestra
         config()->set('database.default', 'testing');
 
         /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
+             foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
+                (include $migration->getRealPath())->up();
+             }
+             */
     }
 }
