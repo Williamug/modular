@@ -1,8 +1,0 @@
-{
-  "name": "Example",
-  "slug": "example",
-  "version": "1.0.0",
-  "description": "Example module for modular-core package",
-  "enabled": true,
-  "provider": "Modules\\Example\\Providers\\ExampleServiceProvider"
-}
