@@ -8,122 +8,119 @@ use Illuminate\Support\Str;
 
 class MakeModuleCommand extends Command
 {
-  protected $signature = 'module:make {name}';
-  protected $description = 'Scaffold a new module inside the modules/ directory';
+  protected $signature = 'module:create {names*}';
+  protected $description = 'Scaffold one or more modules inside the modules/ directory';
+
+  protected function getStub(string $stubName): string
+  {
+    return file_get_contents(__DIR__ . '/../stubs/' . $stubName);
+  }
 
   public function handle(Filesystem $files)
   {
-    $name = Str::studly($this->argument('name'));
-    $slug = Str::kebab($name);
-    $base = base_path("Modules/{$slug}");
+    $names = $this->argument('names');
 
-    if ($files->isDirectory($base)) {
-      $this->error("Module already exists: {$slug}");
-      return Command::FAILURE;
+    foreach ($names as $name) {
+      $name = Str::studly($name);
+      $slug = Str::kebab($name);
+      $base = base_path("Modules/{$slug}");
+
+      if ($files->isDirectory($base)) {
+        $this->error("Module already exists: {$slug}");
+        continue;
+      }
+
+      // ✅ Create all required directories
+      $dirs = [
+        $base,
+        "{$base}/Providers",
+        "{$base}/Http/Controllers",
+        "{$base}/Models",
+        "{$base}/Database/migrations",
+        "{$base}/routes",
+        "{$base}/resources/views",
+        "{$base}/resources/js/Pages",
+      ];
+
+      foreach ($dirs as $dir) {
+        $files->ensureDirectoryExists($dir);
+      }
+
+      // Detect if the project is API-only
+      $isApiOnly = !$files->exists(resource_path('js')) && !$files->exists(resource_path('views'));
+
+      if (!$isApiOnly) {
+        // ✅ Create frontend directories
+        $frontendDirs = [
+          "{$base}/resources/js",
+          "{$base}/resources/css",
+        ];
+        foreach ($frontendDirs as $dir) {
+          $files->ensureDirectoryExists($dir);
+        }
+
+        // ✅ Create module-assets.json
+        $moduleAssets = [
+          'js' => ['resources/js/app.js'],
+          'css' => ['resources/css/app.css'],
+        ];
+        $files->put("{$base}/module-assets.json", json_encode($moduleAssets, JSON_PRETTY_PRINT));
+
+        // ✅ Create default JS and CSS files
+        $files->put("{$base}/resources/js/app.js", "// JavaScript for {$name} module");
+        $files->put("{$base}/resources/css/app.css", "/* CSS for {$name} module */");
+      } else {
+        $this->comment("Skipping frontend scaffolding for module: {$name} as this appears to be an API-only project.");
+      }
+
+      // ✅ module.json
+      $manifest = [
+        'name' => $name,
+        'slug' => $slug,
+        'version' => '1.0.0',
+        'description' => "{$name} module",
+        'enabled' => true,
+        'provider' => "Williamug\\Modules\\{$name}\\Providers\\{$name}ServiceProvider",
+      ];
+
+      $files->put(
+        "{$base}/module.json",
+        json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+      );
+
+      // ✅ Hooks
+      $hooksStub = $this->getStub('hooks.stub');
+      $files->put("{$base}/hooks.php", $hooksStub);
+
+      // ✅ Service Provider
+      $providerStub = $this->getStub('service-provider.stub');
+      $providerContent = str_replace(['{{module}}', '{{slug}}'], [$name, $slug], $providerStub);
+      $files->put("{$base}/Providers/{$name}ServiceProvider.php", $providerContent);
+
+      // ✅ Routes
+      $routeStub = $this->getStub('route.stub');
+      $routeContent = str_replace(['{{module}}', '{{slug}}'], [$name, $slug], $routeStub);
+      $files->put("{$base}/routes/web.php", $routeContent);
+
+      // ✅ Default Controller
+      $controllerStub = $this->getStub('controller.stub');
+      $controllerContent = str_replace('{{module}}', $name, $controllerStub);
+      $files->put("{$base}/Http/Controllers/{$name}Controller.php", $controllerContent);
+
+      // ✅ Default View
+      $viewStub = $this->getStub('view.stub');
+      $viewContent = str_replace('{{module}}', $name, $viewStub);
+      $files->put("{$base}/resources/views/index.blade.php", $viewContent);
+
+      // ✅ Default Migration
+      $migrationStub = $this->getStub('migration.stub');
+      $migrationContent = str_replace('{{table}}', $slug, $migrationStub);
+      $timestamp = date('Y_m_d_His');
+      $files->put("{$base}/Database/migrations/{$timestamp}_create_{$slug}_table.php", $migrationContent);
+
+      $this->info("✅ Module scaffolded: {$slug}");
     }
 
-    // ✅ Create all required directories
-    $dirs = [
-      $base,
-      "{$base}/Providers",
-      "{$base}/Http/Controllers",
-      "{$base}/Models",
-      "{$base}/Database/migrations",
-      "{$base}/routes",
-      "{$base}/resources/views",
-      "{$base}/resources/js/Pages",
-    ];
-
-    foreach ($dirs as $dir) {
-      $files->ensureDirectoryExists($dir);
-    }
-
-    // ✅ module.json
-    $manifest = [
-      'name' => $name,
-      'slug' => $slug,
-      'version' => '1.0.0',
-      'description' => "{$name} module",
-      'enabled' => true,
-      'provider' => "Williamug\\Modules\\{$name}\\Providers\\{$name}ServiceProvider",
-    ];
-
-    $files->put(
-      "{$base}/module.json",
-      json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
-    );
-
-    // ✅ hooks.php (empty template)
-    $hooks = <<<PHP
-<?php
-
-use Williamug\\Modular\\HookManager;
-
-return function (HookManager \$hooks) {
-    // Example:
-    // \$hooks->listen('user.created', fn(\$user) => Log::info("New user: " . \$user->name));
-};
-PHP;
-    $files->put("{$base}/hooks.php", $hooks);
-
-    // ✅ Service Provider (auto-loads hooks, routes, migrations, and views)
-    $provider = <<<PHP
-<?php
-
-namespace App\\Modules\\{$name}\\Providers;
-
-use Illuminate\\Support\\ServiceProvider;
-use Williamug\\Modular\\HookManager;
-
-class {$name}ServiceProvider extends ServiceProvider
-{
-    protected string \$module = '{$slug}';
-
-    public function boot()
-    {
-        \$base = base_path('modules/' . \$this->module);
-
-        // Load routes
-        if (file_exists(\$base . '/routes/web.php')) {
-            \$this->loadRoutesFrom(\$base . '/routes/web.php');
-        }
-
-        // Load migrations
-        if (is_dir(\$base . '/Database/migrations')) {
-            \$this->loadMigrationsFrom(\$base . '/Database/migrations');
-        }
-
-        // Load views
-        if (is_dir(\$base . '/resources/views')) {
-            \$this->loadViewsFrom(\$base . '/resources/views', \$this->module);
-        }
-
-        // Load hooks
-        \$hookFile = \$base . '/hooks.php';
-        if (file_exists(\$hookFile)) {
-            \$callback = require \$hookFile;
-            if (is_callable(\$callback)) {
-                \$callback(app(HookManager::class));
-            }
-        }
-    }
-}
-PHP;
-    $files->put("{$base}/Providers/{$name}ServiceProvider.php", $provider);
-
-    // ✅ Sample route
-    $route = <<<PHP
-<?php
-
-use Illuminate\\Support\\Facades\\Route;
-
-Route::get('/{$slug}', function () {
-    return response("{$name} module loaded successfully.");
-});
-PHP;
-    $files->put("{$base}/routes/web.php", $route);
-
-    $this->info("✅ Module scaffolded: {$slug}");
     return Command::SUCCESS;
   }
 }
