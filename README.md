@@ -1,8 +1,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/williamug/modular.svg?style=flat-square)](https://packagist.org/packages/williamug/modular/stats#major/all)
 [![run-tests](https://github.com/Williamug/modular/actions/workflows/run-tests.yml/badge.svg)](https://github.com/williamug/modular/actions/workflows/run-tests.yml)
-[![Total Downloads](https://img.shields.io/packagist/dt/williamug/modular.svg?style=flat-square)](https://packagist.org/packages/williamug/modular)
 [![Made With](https://img.shields.io/badge/made_with-php-blue)](/docs/requirements/)
-[![License](https://img.shields.io/packagist/l/williamug/versioning.svg)](https://github.com/williamug/versioning/blob/master/LICENSE.txt)
+[![License](https://img.shields.io/packagist/l/williamug/modular.svg)](https://github.com/williamug/modular/blob/master/LICENSE.txt)
+<!-- [![Total Downloads](https://img.shields.io/packagist/dt/williamug/modular.svg?style=flat-square)](https://packagist.org/packages/williamug/modular) -->
 
 # Modular
 
@@ -34,12 +34,12 @@ This will publish the configuration file and configure your frontend.
 ### Creating a Module
 To create a new module, use the `module:create` command:
 ```bash
-php artisan module:create Blog
+php artisan module:create Expense
 ```
-This will create a `Blog` module in the `Modules` directory with the following structure:
+This will create a `Expense` module in the `Modules` directory with the following structure:
 ```
 Modules/
-  Blog/
+  Expense/
     Providers/
     Http/
     Models/
@@ -53,117 +53,117 @@ Modules/
 ### Enabling and Disabling Modules
 Enable a module:
 ```bash
-php artisan module:enable Blog
+php artisan module:enable Expense
 ```
 Disable a module:
 ```bash
-php artisan module:disable Blog
+php artisan module:disable Expense
 ```
 
 ### Deleting a Module
 Delete a module:
 ```bash
-php artisan module:delete Blog
+php artisan module:delete Expense
 ```
 
 ### Running Migrations
 Run migrations for a specific module:
 ```bash
-php artisan module:migrate Blog
+php artisan module:migrate Expense
 ```
 
 ### Seeding Data
 Seed data for a specific module:
 ```bash
-php artisan module:seed Blog
+php artisan module:seed Expense
 ```
 
 ### Publishing Assets
 Publish assets for a specific module:
 ```bash
-php artisan module:publish Blog
+php artisan module:publish Expense
 ```
 
 ### Generating Files
 Generate a controller within a module:
 ```bash
-php artisan module:controller Blog PostController
+php artisan module:controller Expense PostController
 ```
 Generate a model within a module:
 ```bash
-php artisan module:model Blog Post --migration
+php artisan module:model Expense Post --migration
 ```
 Generate a migration within a module:
 ```bash
-php artisan module:migration Blog create_posts_table
+php artisan module:migration Expense create_posts_table
 ```
 
 ### Viewing Module Information
 View detailed information about a module:
 ```bash
-php artisan module:info Blog
+php artisan module:info Expense
 ```
 
 ## Example Project
 
-### Setting Up a Blog Module
+### Setting Up a Expense Module
 1. **Create the Module**:
    ```bash
-   php artisan module:make Blog
+   php artisan module:make Expense
    ```
 
 2. **Add Routes**:
-   Edit `Modules/Blog/routes/web.php`:
+   Edit `Modules/Expense/routes/web.php`:
    ```php
    <?php
 
    use Illuminate\Support\Facades\Route;
 
-   Route::get('/blog', function () {
-       return 'Welcome to the Blog module!';
+   Route::get('/expense', function () {
+       return 'Welcome to the Expense module!';
    });
    ```
 
 3. **Create a Controller**:
    ```bash
-   php artisan module:controller Blog BlogController
+   php artisan module:controller Expense ExpenseController
    ```
-   Edit `Modules/Blog/Http/Controllers/BlogController.php`:
+   Edit `Modules/Expense/Http/Controllers/ExpenseController.php`:
    ```php
    <?php
 
-   namespace Modules\Blog\Http\Controllers;
+   namespace Modules\Expense\Http\Controllers;
 
    use Illuminate\Http\Request;
    use App\Http\Controllers\Controller;
 
-   class BlogController extends Controller
+   class ExpenseController extends Controller
    {
        public function index()
        {
-           return 'Blog index page';
+           return 'Expense index page';
        }
    }
    ```
 
 4. **Add a Model**:
    ```bash
-   php artisan module:model Blog Post --migration
+   php artisan module:model Expense Post --migration
    ```
    Edit the generated migration file to define the `posts` table schema.
 
 5. **Run Migrations**:
    ```bash
-   php artisan module:migrate Blog
+   php artisan module:migrate Expense
    ```
 
 6. **Enable the Module**:
    ```bash
-   php artisan module:enable Blog
+   php artisan module:enable Expense
    ```
 
 7. **Access the Module**:
-   Visit `/blog` in your browser to see the Blog module in action.
+   Visit `/expense` in your browser to see the Expense module in action.
 
 ## API-Only Projects
 For API-only projects, the package automatically skips frontend scaffolding. You can still use all the commands to manage modules and their backend logic.
