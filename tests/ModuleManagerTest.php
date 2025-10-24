@@ -2,7 +2,6 @@
 
 namespace Williamug\Modular\Tests;
 
-
 class ModuleManagerTest extends TestCase
 {
   public function test_scans_and_registers_valid_modules()

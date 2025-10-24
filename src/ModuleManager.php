@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 class ModuleManager
 {
   protected string $modulesPath;
+
   protected array $modules = [];
 
   public function __construct(?string $modulesPath = null)
@@ -83,6 +84,7 @@ class ModuleManager
 
     if (class_exists($provider)) {
       app()->register($provider);
+
       return;
     }
 
@@ -102,7 +104,7 @@ class ModuleManager
   protected function registerHooks(string $dir): void
   {
     $hooksFile = $dir . '/hooks.php';
-    if (!file_exists($hooksFile)) {
+    if (! file_exists($hooksFile)) {
       return;
     }
 
