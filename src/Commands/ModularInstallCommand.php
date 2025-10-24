@@ -20,35 +20,47 @@ class ModularInstallCommand extends Command
 
     if (! $isApiOnly) {
       // Modify vite.config.ts/js
-      $viteConfigPath = base_path('vite.config.js');
-      if ($files->exists($viteConfigPath)) {
+      $viteConfigPathJs = base_path('vite.config.js');
+      $viteConfigPathTs = base_path('vite.config.ts');
+      $viteConfigPath = $files->exists($viteConfigPathJs) ? $viteConfigPathJs : ($files->exists($viteConfigPathTs) ? $viteConfigPathTs : null);
+      if ($viteConfigPath) {
         $viteConfigContent = $files->get($viteConfigPath);
 
         if (! str_contains($viteConfigContent, 'Modules')) {
           $viteConfigContent .= "\n\n" . $this->getViteConfigSnippet();
           $files->put($viteConfigPath, $viteConfigContent);
-          $this->info('Updated vite.config.js to include module assets.');
+          $this->info('Updated ' . basename($viteConfigPath) . ' to include module assets.');
         } else {
-          $this->comment('vite.config.js already includes module assets.');
+          $this->comment(basename($viteConfigPath) . ' already includes module assets.');
         }
       } else {
-        $this->error('vite.config.js not found. Please ensure you are using Vite.');
+        $this->error('vite.config.js or vite.config.ts not found. Please ensure you are using Vite.');
       }
 
       // Modify Blade template
-      $bladePath = resource_path('views/layouts/app.blade.php');
-      if ($files->exists($bladePath)) {
+      $bladePaths = [
+        resource_path('views/layouts/app.blade.php'),
+        resource_path('views/app.blade.php'),
+      ];
+      $bladePath = null;
+      foreach ($bladePaths as $path) {
+        if ($files->exists($path)) {
+          $bladePath = $path;
+          break;
+        }
+      }
+      if ($bladePath) {
         $bladeContent = $files->get($bladePath);
 
         if (! str_contains($bladeContent, '@foreach ($modules as $module)')) {
           $bladeContent = str_replace('</head>', $this->getBladeSnippet() . "\n</head>", $bladeContent);
           $files->put($bladePath, $bladeContent);
-          $this->info('Updated app.blade.php to include module assets.');
+          $this->info('Updated ' . basename($bladePath) . ' to include module assets.');
         } else {
-          $this->comment('app.blade.php already includes module assets.');
+          $this->comment(basename($bladePath) . ' already includes module assets.');
         }
       } else {
-        $this->error('Blade template not found at resources/views/layouts/app.blade.php.');
+        $this->error('app.blade.php not found in resources/views/layouts or resources/views.');
       }
     } else {
       $this->comment('Skipping frontend modifications as this appears to be an API-only project.');
