@@ -73,6 +73,17 @@ class MakeModuleCommand extends Command
         $files->ensureDirectoryExists($dir);
       }
 
+      // Add default DatabaseSeeder if not present
+      $seederPath = base_path('database/seeders/DatabaseSeeder.php');
+      if (! $files->exists($seederPath)) {
+        $seederStub = $this->getStub('database-seeder.stub');
+        $files->ensureDirectoryExists(dirname($seederPath));
+        $files->put($seederPath, $seederStub);
+        $this->info('Created default DatabaseSeeder.php');
+      } else {
+        $this->comment('DatabaseSeeder.php already exists.');
+      }
+
       // Detect if the project is API-only
       $isApiOnly = ! $files->exists(resource_path('js')) && ! $files->exists(resource_path('views'));
 
@@ -116,7 +127,7 @@ class MakeModuleCommand extends Command
         'version' => '1.0.0',
         'description' => "{$name} module",
         'enabled' => true,
-        'provider' => "Williamug\\Modules\\{$name}\\Providers\\{$name}ServiceProvider",
+        'provider' => "{$base}\\{$name}\\App\\Providers\\{$name}ServiceProvider",
       ];
 
       $files->put(
@@ -131,7 +142,7 @@ class MakeModuleCommand extends Command
       // ✅ Service Provider
       $providerStub = $this->getStub('service-provider.stub');
       $providerContent = str_replace(['{{module}}', '{{slug}}'], [$name, $slug], $providerStub);
-      $files->put("{$base}/Providers/{$name}ServiceProvider.php", $providerContent);
+      $files->put("{$base}/App/Providers/{$name}ServiceProvider.php", $providerContent);
 
       // ✅ Routes
       $routeStub = $this->getStub('route.stub');
@@ -141,7 +152,7 @@ class MakeModuleCommand extends Command
       // ✅ Default Controller
       $controllerStub = $this->getStub('controller.stub');
       $controllerContent = str_replace('{{module}}', $name, $controllerStub);
-      $files->put("{$base}/Http/Controllers/{$name}Controller.php", $controllerContent);
+      $files->put("{$base}/App/Http/Controllers/{$name}Controller.php", $controllerContent);
 
       // ✅ Default View
       $viewStub = $this->getStub('view.stub');
@@ -152,7 +163,7 @@ class MakeModuleCommand extends Command
       $migrationStub = $this->getStub('migration.stub');
       $migrationContent = str_replace('{{table}}', $slug, $migrationStub);
       $timestamp = date('Y_m_d_His');
-      $files->put("{$base}/Database/migrations/{$timestamp}_create_{$slug}_table.php", $migrationContent);
+      $files->put("{$base}/database/migrations/{$timestamp}_create_{$slug}_table.php", $migrationContent);
 
       $this->info("✅ Module scaffolded: {$name}");
     }
