@@ -69,10 +69,10 @@ if (fs.existsSync(modulesPath)) {
         if (fs.existsSync(assetsPath)) {
             const assets = JSON.parse(fs.readFileSync(assetsPath, 'utf-8'));
             if (assets.js) {
-                assets.js.forEach((js) => moduleAssets.push(`Modules/\${module}/\${js}`));
+                assets.js.forEach((js) => moduleAssets.push(`Modules/${module}/${js}`));
             }
             if (assets.css) {
-                assets.css.forEach((css) => moduleAssets.push(`Modules/\${module}/\${css}`));
+                assets.css.forEach((css) => moduleAssets.push(`Modules/${module}/${css}`));
             }
         }
     });
