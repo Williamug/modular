@@ -142,7 +142,7 @@ class MakeModuleCommand extends Command
       // ✅ Service Provider
       $providerStub = $this->getStub('service-provider.stub');
       $providerContent = str_replace(['{{module}}', '{{slug}}'], [$name, $slug], $providerStub);
-      $files->put("{$base}/App/Providers/{$name}ServiceProvider.php", $providerContent);
+      $files->put("{$base}/app/Providers/{$name}ServiceProvider.php", $providerContent);
 
       // ✅ Routes
       $routeStub = $this->getStub('route.stub');
@@ -152,7 +152,7 @@ class MakeModuleCommand extends Command
       // ✅ Default Controller
       $controllerStub = $this->getStub('controller.stub');
       $controllerContent = str_replace('{{module}}', $name, $controllerStub);
-      $files->put("{$base}/App/Http/Controllers/{$name}Controller.php", $controllerContent);
+      $files->put("{$base}/app/Http/Controllers/{$name}Controller.php", $controllerContent);
 
       // ✅ Default View
       $viewStub = $this->getStub('view.stub');
