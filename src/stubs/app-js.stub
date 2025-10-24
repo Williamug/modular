@@ -1,0 +1,10 @@
+// JavaScript for {{module}} module
+// Import parent layouts and components (Vue starter kit convention)
+import MainLayout from '@/layouts/MainLayout.vue';
+import Header from '@/components/Header.vue';
+
+// Example usage:
+// export default {
+//   components: { MainLayout, Header },
+//   template: '<MainLayout><Header />Module Content</MainLayout>'
+// }

@@ -1,8 +1,10 @@
 <?php
 
 use Williamug\Modular\HookManager;
+use Illuminate\Support\Facades\Log;
 
 return function (HookManager $hooks) {
-    // Example:
-    // $hooks->listen('user.created', fn($user) => Log::info("New user: " . $user->name));
+  $hooks->listen('user.created', function ($user) {
+    Log::info("New user registered: {$user->name}");
+  });
 };
