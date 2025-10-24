@@ -1,6 +1,6 @@
 {
   "name": "williamug/modular",
-  "description": "The Modular provides a modular architecture for Laravel applications, allowing you to organize your application into self-contained modules. This package is inspired by the concept of modular development, making it easier to manage large applications.",
+  "description": "The Modular provides a modular architecture for Laravel applications, allowing you to organize your application into self-contained modules. This package is inspired by the concept of modular programming, making it easier to manage large applications.",
   "keywords": [
     "Williamug",
     "laravel",
