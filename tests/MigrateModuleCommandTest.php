@@ -5,12 +5,14 @@ use Illuminate\Filesystem\Filesystem;
 
 it('runs migrations for a module', function () {
   $filesystem = new Filesystem();
-  $migrator = mock(Migrator::class);
-  $modulePath = base_path('Modules/TestModule/Database/migrations');
+  $modulesPath = base_path('Modules');
+  $modulePath = $modulesPath . '/TestModule/Database/migrations';
 
-  // Create a mock migrations directory
+  // Ensure the Modules and migrations directories exist
   $filesystem->ensureDirectoryExists($modulePath);
-  $filesystem->put("{$modulePath}/2025_10_23_000000_create_test_table.php", '<?php ');
+  $filesystem->put("{$modulePath}/2025_10_23_000000_create_test_table.php", '<?php // Migration file');
+
+  $migrator = mock(Migrator::class);
 
   // Mock the migrator
   $migrator->shouldReceive('run')->with($modulePath)->once();
@@ -22,5 +24,5 @@ it('runs migrations for a module', function () {
     ->assertExitCode(0);
 
   // Cleanup
-  $filesystem->deleteDirectory(base_path('Modules/TestModule'));
+  $filesystem->deleteDirectory($modulesPath);
 });

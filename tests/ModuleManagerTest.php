@@ -11,28 +11,33 @@ class ModuleManagerTest extends TestCase
 
     // Mock the modules directory
     $modulesPath = base_path('Modules');
-    if (!is_dir($modulesPath)) {
-      mkdir($modulesPath);
+    if (is_dir($modulesPath)) {
+      $this->recursiveDelete($modulesPath);
     }
+    mkdir($modulesPath, 0755, true);
+
     $testModulePath = "{$modulesPath}/TestModule";
-    if (!is_dir($testModulePath)) {
-      mkdir($testModulePath);
-    }
-    file_put_contents("{$testModulePath}/module.json", json_encode([
+    mkdir($testModulePath, 0755, true);
+
+    $moduleJsonPath = "{$testModulePath}/module.json";
+    $moduleJsonContent = json_encode([
       'name' => 'TestModule',
       'slug' => 'test-module',
       'enabled' => true,
-    ]));
+    ]);
+    file_put_contents($moduleJsonPath, $moduleJsonContent);
+
+    // Debugging output removed
 
     // Ensure the module manager scans and registers the module
     $modules = $manager->scanAndRegister();
 
     // Adjust expectations to match the actual structure
-    expect($modules)->toHaveKey('TestModule');
-    expect($modules['TestModule']['name'])->toBe('TestModule');
+    expect($modules)->toHaveKey('test-module');
+    expect($modules['test-module']['name'])->toBe('TestModule');
 
     // Cleanup
-    unlink("{$testModulePath}/module.json");
+    unlink($moduleJsonPath);
     rmdir($testModulePath);
     rmdir($modulesPath);
   }
