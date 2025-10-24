@@ -96,9 +96,9 @@ JS;
   protected function getBladeSnippet(): string
   {
     return <<<'BLADE'
-@foreach ($modules as $module)
-    @vite(["Modules/{$module}/resources/js/app.js", "Modules/{$module}/resources/css/app.css"])
-@endforeach
+      @foreach ($modules as $module)
+        @vite(["Modules/{$module}/resources/js/app.js", "Modules/{$module}/resources/css/app.css"])
+      @endforeach
 BLADE;
   }
 }
