@@ -69,7 +69,7 @@ class ModularInstallCommand extends Command
 
   protected function getViteConfigSnippet(): string
   {
-    return <<<JS
+    return <<<'JS'
 import * as path from 'path';
 import * as fs from 'fs';
 
