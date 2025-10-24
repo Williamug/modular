@@ -1,7 +1,8 @@
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/williamug/modular.svg?style=flat-square)](https://packagist.org/packages/williamug/modular)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/williamug/modular/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/williamug/modular/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/williamug/modular/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/williamug/modular/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/williamug/modular.svg?style=flat-square)](https://packagist.org/packages/williamug/modular/stats#major/all)
+[![run-tests](https://github.com/Williamug/modular/actions/workflows/run-tests.yml/badge.svg)](https://github.com/williamug/modular/actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/williamug/modular.svg?style=flat-square)](https://packagist.org/packages/williamug/modular)
+[![Made With](https://img.shields.io/badge/made_with-php-blue)](/docs/requirements/)
+[![License](https://img.shields.io/packagist/l/williamug/versioning.svg)](https://github.com/williamug/versioning/blob/master/LICENSE.txt)
 
 # Modular
 
