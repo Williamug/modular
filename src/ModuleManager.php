@@ -22,6 +22,11 @@ class ModuleManager
     {
         $found = [];
 
+        // Ensure the Modules directory exists
+        if (! File::exists($this->modulesPath)) {
+            File::makeDirectory($this->modulesPath, 0755, true);
+        }
+
         $directories = File::directories($this->modulesPath);
 
         foreach ($directories as $dir) {
