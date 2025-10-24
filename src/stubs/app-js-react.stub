@@ -1,0 +1,14 @@
+// JavaScript for {{module}} module
+// Import parent layouts and components (React starter kit convention)
+import MainLayout from '@/layouts/MainLayout';
+import Header from '@/components/Header';
+
+// Example usage:
+// export default function Module() {
+//   return (
+//     <MainLayout>
+//       <Header />
+//       Module Content
+//     </MainLayout>
+//   );
+// }

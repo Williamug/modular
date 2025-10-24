@@ -20,12 +20,11 @@ class ModularInstallCommand extends Command
 
     if (! $isApiOnly) {
       // Modify vite.config.ts/js
-      $viteConfigPathJs = base_path('vite.config.js');
       $viteConfigPathTs = base_path('vite.config.ts');
-      $viteConfigPath = $files->exists($viteConfigPathJs) ? $viteConfigPathJs : ($files->exists($viteConfigPathTs) ? $viteConfigPathTs : null);
+      $viteConfigPathJs = base_path('vite.config.js');
+      $viteConfigPath = $files->exists($viteConfigPathTs) ? $viteConfigPathTs : ($files->exists($viteConfigPathJs) ? $viteConfigPathJs : null);
       if ($viteConfigPath) {
         $viteConfigContent = $files->get($viteConfigPath);
-
         if (! str_contains($viteConfigContent, 'Modules')) {
           $viteConfigContent .= "\n\n" . $this->getViteConfigSnippet();
           $files->put($viteConfigPath, $viteConfigContent);
@@ -34,13 +33,13 @@ class ModularInstallCommand extends Command
           $this->comment(basename($viteConfigPath) . ' already includes module assets.');
         }
       } else {
-        $this->error('vite.config.js or vite.config.ts not found. Please ensure you are using Vite.');
+        $this->error('vite.config.ts or vite.config.js not found. Please ensure you are using Vite.');
       }
 
       // Modify Blade template
       $bladePaths = [
-        resource_path('views/layouts/app.blade.php'),
         resource_path('views/app.blade.php'),
+        resource_path('views/layouts/app.blade.php'),
       ];
       $bladePath = null;
       foreach ($bladePaths as $path) {
@@ -51,7 +50,6 @@ class ModularInstallCommand extends Command
       }
       if ($bladePath) {
         $bladeContent = $files->get($bladePath);
-
         if (! str_contains($bladeContent, '@foreach ($modules as $module)')) {
           $bladeContent = str_replace('</head>', $this->getBladeSnippet() . "\n</head>", $bladeContent);
           $files->put($bladePath, $bladeContent);
@@ -60,7 +58,7 @@ class ModularInstallCommand extends Command
           $this->comment(basename($bladePath) . ' already includes module assets.');
         }
       } else {
-        $this->error('app.blade.php not found in resources/views/layouts or resources/views.');
+        $this->error('app.blade.php not found in resources/views or resources/views/layouts.');
       }
     } else {
       $this->comment('Skipping frontend modifications as this appears to be an API-only project.');
@@ -72,8 +70,11 @@ class ModularInstallCommand extends Command
   protected function getViteConfigSnippet(): string
   {
     return <<<JS
+import * as path from 'path';
+import * as fs from 'fs';
+
 // Scan Modules directory for module-assets.json
-const moduleAssets = [];
+const moduleAssets: string[] = [];
 const modulesPath = path.resolve(__dirname, 'Modules');
 if (fs.existsSync(modulesPath)) {
     fs.readdirSync(modulesPath).forEach((module) => {
@@ -81,10 +82,10 @@ if (fs.existsSync(modulesPath)) {
         if (fs.existsSync(assetsPath)) {
             const assets = JSON.parse(fs.readFileSync(assetsPath, 'utf-8'));
             if (assets.js) {
-                assets.js.forEach((js) => moduleAssets.push(`Modules/\${module}/\${js}`));
+                assets.js.forEach((js: string) => moduleAssets.push(`Modules/${module}/${js}`));
             }
             if (assets.css) {
-                assets.css.forEach((css) => moduleAssets.push(`Modules/\${module}/\${css}`));
+                assets.css.forEach((css: string) => moduleAssets.push(`Modules/${module}/${css}`));
             }
         }
     });
@@ -95,9 +96,9 @@ JS;
   protected function getBladeSnippet(): string
   {
     return <<<'BLADE'
-@foreach ($modules as $module)
-    @vite(["Modules/{$module}/resources/js/app.js", "Modules/{$module}/resources/css/app.css"])
-@endforeach
+      @foreach ($modules as $module)
+        @vite(["Modules/{$module}/resources/js/app.js", "Modules/{$module}/resources/css/app.css"])
+      @endforeach
 BLADE;
   }
 }

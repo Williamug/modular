@@ -104,6 +104,161 @@ View detailed information about a module:
 php artisan module:info Expense
 ```
 
+## Modular Navigation
+
+Modules can register navigation items by adding a `navigation` key to their `module.json`. You can use advanced features like icons, groupings, and permissions:
+
+```json
+{
+  "name": "Customers",
+  "slug": "customers",
+  "enabled": true,
+  "navigation": [
+    { "label": "Customers", "url": "/customers", "icon": "fa fa-users", "group": "CRM", "permission": "view-customers" },
+    { "label": "Invoices", "url": "/invoices", "icon": "fa fa-file-invoice", "group": "Accounting", "permission": "view-invoices" }
+  ]
+}
+```
+
+### Helper Usage
+
+In your sidebar Blade view, use the helper:
+
+```blade
+<ul>
+    @foreach(modular_navigation() as $item)
+        @if(!$item['permission'] || auth()->user()?->can($item['permission']))
+            <li>
+                @if($item['icon'])<i class="{{ $item['icon'] }}"></i>@endif
+                <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+            </li>
+        @endif
+    @endforeach
+</ul>
+```
+
+#### Grouped Navigation Example
+
+```blade
+@php
+    $groups = [];
+    foreach(modular_navigation() as $item) {
+        if(!$item['permission'] || auth()->user()?->can($item['permission'])) {
+            $groups[$item['group'] ?? 'Other'][] = $item;
+        }
+    }
+@endphp
+<ul>
+    @foreach($groups as $group => $items)
+        <li class="nav-group">
+            <span>{{ $group }}</span>
+            <ul>
+                @foreach($items as $item)
+                    <li>
+                        @if($item['icon'])<i class="{{ $item['icon'] }}"></i>@endif
+                        <a href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+                    </li>
+                @endforeach
+            </ul>
+        </li>
+    @endforeach
+</ul>
+```
+
+### Blade Directive Usage
+
+Or use the Blade directive for a concise syntax:
+
+```blade
+<ul>
+    @modularNavigation
+</ul>
+```
+
+This will automatically render grouped navigation items from all enabled modules, showing icons and respecting permissions.
+
+## Modular Content Injection
+
+Modules can inject custom content into parent layouts or pages (e.g., settings, dashboard widgets, or any slot) by adding a `settings`, `widgets`, or `content` key to their `module.json`:
+
+```json
+{
+  "name": "Customers",
+  "slug": "customers",
+  "enabled": true,
+  "settings": [
+    { "label": "Customer Settings", "view": "Modules/customer/resources/views/settings.blade.php", "icon": "fa fa-cog", "group": "CRM", "permission": "manage-customers" }
+  ],
+  "widgets": [
+    { "label": "Customer Stats", "view": "Modules/customer/resources/views/widgets/stats.blade.php", "icon": "fa fa-chart-bar", "group": "CRM", "permission": "view-customers" }
+  ],
+  "content": [
+    { "label": "Promo Banner", "view": "Modules/customer/resources/views/banner.blade.php", "icon": "fa fa-bullhorn", "group": "Marketing", "permission": "view-banner" }
+  ]
+}
+```
+
+### Helper Usage for Settings
+
+In your unified settings page:
+
+```blade
+@foreach(modular_settings() as $setting)
+    @if(!$setting['permission'] || auth()->user()?->can($setting['permission']))
+        @if($setting['icon'])<i class="{{ $setting['icon'] }}"></i>@endif
+        @include($setting['view'])
+    @endif
+@endforeach
+```
+Or use the Blade directive:
+```blade
+@modularSettings
+```
+
+### Helper Usage for Widgets
+
+In your dashboard:
+
+```blade
+@foreach(modular_widgets() as $widget)
+    @if(!$widget['permission'] || auth()->user()?->can($widget['permission']))
+        @if($widget['icon'])<i class="{{ $widget['icon'] }}"></i>@endif
+        @include($widget['view'])
+    @endif
+@endforeach
+```
+Or use the Blade directive:
+```blade
+@modularWidgets
+```
+
+### Helper Usage for Generic Content
+
+In any parent layout or page:
+
+```blade
+@foreach(modular_content() as $content)
+    @if(!$content['permission'] || auth()->user()?->can($content['permission']))
+        @if($content['icon'])<i class="{{ $content['icon'] }}"></i>@endif
+        @include($content['view'])
+    @endif
+@endforeach
+```
+Or use the Blade directive:
+```blade
+@modularContent
+```
+
+### Example Module Content (banner.blade.php)
+
+```blade
+{{-- Modules/customer/resources/views/banner.blade.php --}}
+<div class="module-banner">
+    <h4>Special Promotion!</h4>
+    <p>Get 20% off for all new customers this month.</p>
+</div>
+```
+
 ## Example Project
 
 ### Setting Up a Expense Module
