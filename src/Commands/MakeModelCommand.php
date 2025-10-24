@@ -24,7 +24,19 @@ class MakeModelCommand extends Command
       return Command::FAILURE;
     }
 
-    $modelContent = "<?php\n\nnamespace Modules\\{$module}\\Models;\n\nuse Illuminate\\Database\\Eloquent\\Model;\n\nclass {$name} extends Model\n{\n    protected \$guarded = [];\n}";
+    $stubPath = __DIR__ . '/../stubs/model.stub';
+    if ($files->exists($stubPath)) {
+      $stub = $files->get($stubPath);
+      $modelContent = str_replace([
+        '{{module}}',
+        '{{name}}'
+      ], [
+        $module,
+        $name
+      ], $stub);
+    } else {
+      $modelContent = "<?php\n\nnamespace Modules\\{$module}\\App\\Models;\n\nuse Illuminate\\Database\\Eloquent\\Model;\n\nclass {$name} extends Model\n{\n    protected \$guarded = [];\n}";
+    }
     $files->put($modelPath, $modelContent);
 
     $this->info("Model created: {$name}");
