@@ -62,7 +62,7 @@ class MakeModuleCommand extends Command
         "{$base}/app/Actions",
         "{$base}/app/Models",
         "{$base}/database/migrations",
-        "{$base}/databasectories",
+        "{$base}/database/factories",
         "{$base}/database/seeders",
         "{$base}/routes",
         "{$base}/resources/views",
@@ -75,13 +75,13 @@ class MakeModuleCommand extends Command
 
       // Add default DatabaseSeeder if not present
       $seederPath = base_path('database/seeders/DatabaseSeeder.php');
+      $files->ensureDirectoryExists(dirname($seederPath));
       if (! $files->exists($seederPath)) {
         $seederStub = $this->getStub('database-seeder.stub');
-        $files->ensureDirectoryExists(dirname($seederPath));
         $files->put($seederPath, $seederStub);
-        $this->info('Created default DatabaseSeeder.php');
+        $this->info('Created default DatabaseSeeder.php at ' . $seederPath);
       } else {
-        $this->comment('DatabaseSeeder.php already exists.');
+        $this->comment('DatabaseSeeder.php already exists at ' . $seederPath);
       }
 
       // Detect if the project is API-only
